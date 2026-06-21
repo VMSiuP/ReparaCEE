@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#8B0000">
+<meta name="description" content="Calculadora de reparación civil por conducción en estado de ebriedad (Art. 274 CP) - Resolución N° 1470-2005-MP-FN">
+<title>Repara CEE | Calculadora de Reparación Civil</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+:root{
+  --pj-red:#8B0000;
+  --pj-red-dark:#6b0000;
+  --pj-red-light:#a82020;
+  --pj-gold:#C8A84B;
+  --pj-gold-light:#ddc77e;
+  --gray-50:#fafaf9;
+  --gray-100:#f1efec;
+  --gray-200:#e3e0da;
+  --gray-300:#cbc6bc;
+  --gray-400:#a39c8e;
+  --gray-600:#6e675a;
+  --gray-700:#4d473d;
+  --gray-800:#312d26;
+  --gray-900:#1c1a16;
+
+  --bg:var(--gray-50);
+  --surface:#ffffff;
+  --surface-2:var(--gray-100);
+  --text-1:var(--gray-900);
+  --text-2:var(--gray-700);
+  --text-3:var(--gray-400);
+  --border:var(--gray-200);
+  --shadow:0 2px 10px rgba(28,26,22,0.07);
+  --shadow-lg:0 12px 32px rgba(28,26,22,0.14);
+  --radius:14px;
+  --radius-sm:9px;
+  --accent:var(--pj-red);
+  --accent-2:var(--pj-gold);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+[data-theme="dark"]{
+  --bg:#15130f;
+  --surface:#1f1c17;
+  --surface-2:#262219;
+  --text-1:#f3efe6;
+  --text-2:#cfc7b6;
+  --text-3:#8c8576;
+  --border:#332e24;
+  --shadow:0 2px 14px rgba(0,0,0,0.4);
+  --shadow-lg:0 16px 40px rgba(0,0,0,0.55);
+  --accent:#c93838;
+  --accent-2:var(--pj-gold);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Georgia","Iowan Old Style",serif;
+  background:var(--bg);
+  color:var(--text-1);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s ease,color .25s ease;
+  padding-top:var(--safe-top);
+  padding-bottom:var(--safe-bottom);
+}
+.font-ui{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+
+/* ===== Header ===== */
+header.app-header{
+  position:relative;
+  background:linear-gradient(135deg,var(--pj-red) 0%,var(--pj-red-dark) 65%,#4a0000 100%);
+  color:#fdf8ee;
+  padding:22px 20px 26px;
+  overflow:hidden;
+}
+header.app-header::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    repeating-linear-gradient(135deg, rgba(200,168,75,0.08) 0px, rgba(200,168,75,0.08) 2px, transparent 2px, transparent 22px);
+  pointer-events:none;
+}
+.header-row{
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:1;
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{
+  width:46px;height:46px;border-radius:10px;
+  background:var(--pj-gold);
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Georgia",serif;font-weight:700;font-size:20px;color:var(--pj-red-dark);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,0.35);
+  flex-shrink:0;
+}
+.brand-text h1{
+  font-family:"Georgia",serif;
+  margin:0;font-size:21px;font-weight:700;letter-spacing:.2px;line-height:1.15;
+}
+.brand-text p{
+  margin:2px 0 0;font-size:11.5px;color:rgba(253,248,238,0.78);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  letter-spacing:.3px;text-transform:uppercase;
+}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(253,248,238,0.35);
+  background:rgba(255,255,255,0.08);
+  color:#fdf8ee;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  transition:background .15s ease,transform .15s ease;
+}
+.icon-btn:hover{background:rgba(255,255,255,0.18);}
+.icon-btn:active{transform:scale(0.92);}
+.legal-strip{
+  position:relative;z-index:1;
+  margin-top:16px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:11.5px;
+  color:rgba(253,248,238,0.85);
+  display:flex;align-items:center;gap:7px;
+  flex-wrap:wrap;
+}
+.legal-strip .pill{
+  background:rgba(0,0,0,0.18);
+  border:1px solid rgba(253,248,238,0.22);
+  border-radius:20px;padding:3px 10px;font-size:10.5px;letter-spacing:.2px;
+}
+
+/* ===== Layout ===== */
+main{max-width:560px;margin:0 auto;padding:18px 16px 110px;}
+.card{
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  padding:18px;
+  margin-bottom:16px;
+}
+.card-label{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--accent);
+  display:flex;align-items:center;gap:6px;
+  margin:0 0 12px;
+}
+.card-label .num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--accent);color:#fff;font-size:10px;font-weight:700;
+}
+
+/* Year stepper */
+.year-row{display:flex;align-items:stretch;gap:10px;}
+.year-stepper{
+  flex:1;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:4px;
+}
+.year-stepper button{
+  width:42px;height:42px;border-radius:9px;border:none;
+  background:transparent;color:var(--text-2);font-size:20px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  transition:background .12s ease;
+}
+.year-stepper button:hover{background:var(--border);}
+.year-stepper button:active{transform:scale(0.93);}
+.year-display{
+  flex:1;text-align:center;font-family:"Georgia",serif;
+}
+.year-display .yr{font-size:24px;font-weight:700;color:var(--text-1);line-height:1;}
+.year-display .uit{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:11.5px;color:var(--text-3);margin-top:3px;
+}
+.uit-manual-toggle{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:11px;color:var(--accent);background:none;border:none;
+  text-decoration:underline;cursor:pointer;padding:8px 0 0;display:inline-block;
+}
+.uit-manual-wrap{display:none;margin-top:10px;}
+.uit-manual-wrap.show{display:block;}
+.uit-manual-wrap input{
+  width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-1);font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:15px;
+}
+
+/* Segmented control (vehicle) */
+.segmented{
+  display:flex;background:var(--surface-2);border-radius:var(--radius-sm);
+  padding:4px;border:1px solid var(--border);gap:4px;
+}
+.segmented button{
+  flex:1;padding:12px 8px;border-radius:8px;border:none;background:transparent;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13.5px;font-weight:600;
+  color:var(--text-2);cursor:pointer;transition:all .15s ease;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  line-height:1.25;
+}
+.segmented button svg{width:22px;height:22px;}
+.segmented button.active{
+  background:var(--accent);color:#fff;
+  box-shadow:0 3px 10px rgba(139,0,0,0.28);
+}
+[data-theme="dark"] .segmented button.active{box-shadow:0 3px 10px rgba(0,0,0,0.4);}
+
+/* Alcohol input */
+.alcohol-input-wrap{position:relative;}
+.alcohol-input-wrap input{
+  width:100%;padding:16px 70px 16px 16px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);background:var(--surface-2);color:var(--text-1);
+  font-family:"Georgia",serif;font-size:26px;font-weight:700;
+  -webkit-appearance:none;
+}
+.alcohol-input-wrap input:focus{outline:none;border-color:var(--accent);}
+.alcohol-input-wrap .unit{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:var(--text-3);
+  text-align:right;line-height:1.2;
+}
+.quick-vals{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;}
+.quick-vals button{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12.5px;
+  padding:6px 12px;border-radius:20px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-2);cursor:pointer;
+}
+.quick-vals button:active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.period-tag{
+  margin-top:12px;display:flex;align-items:center;gap:8px;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12.5px;
+  padding:9px 12px;border-radius:9px;background:var(--surface-2);color:var(--text-2);
+  border-left:3px solid var(--accent-2);
+}
+.period-tag.below{border-left-color:var(--text-3);color:var(--text-3);}
+.period-tag.severe{border-left-color:var(--accent);}
+
+/* Result card */
+.result-card{
+  background:linear-gradient(160deg,var(--pj-red) 0%, var(--pj-red-dark) 100%);
+  color:#fdf8ee;border:none;position:relative;overflow:hidden;
+}
+.result-card::after{
+  content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;
+  border-radius:50%;background:rgba(200,168,75,0.14);
+}
+.result-card .card-label{color:rgba(253,248,238,0.85);}
+.result-card .card-label .num{background:var(--pj-gold);color:var(--pj-red-dark);}
+.result-amount{
+  font-family:"Georgia",serif;font-size:44px;font-weight:700;
+  display:flex;align-items:baseline;gap:6px;position:relative;z-index:1;
+}
+.result-amount .currency{font-size:22px;font-weight:400;opacity:.85;}
+.result-meta{
+  margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;position:relative;z-index:1;
+}
+.result-meta span{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:11.5px;
+  background:rgba(0,0,0,0.18);border:1px solid rgba(253,248,238,0.22);
+  padding:4px 10px;border-radius:20px;
+}
+.result-formula{
+  margin-top:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:12px;color:rgba(253,248,238,0.75);position:relative;z-index:1;
+  border-top:1px solid rgba(253,248,238,0.18);padding-top:10px;
+}
+
+/* Actions */
+.actions-row{display:flex;gap:10px;margin-top:14px;}
+.btn{
+  flex:1;padding:13px 14px;border-radius:11px;border:none;cursor:pointer;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13.5px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:transform .12s ease,opacity .12s ease;
+}
+.btn:active{transform:scale(0.96);}
+.btn svg{width:16px;height:16px;flex-shrink:0;}
+.btn-primary{background:var(--pj-gold);color:var(--pj-red-dark);}
+.btn-ghost{background:rgba(255,255,255,0.12);color:#fdf8ee;border:1px solid rgba(253,248,238,0.28);}
+
+/* History */
+.history-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:1px solid var(--border);
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+}
+.history-item:last-child{border-bottom:none;}
+.history-item .hi-left{display:flex;flex-direction:column;}
+.history-item .hi-date{font-size:11px;color:var(--text-3);}
+.history-item .hi-detail{font-size:13px;color:var(--text-2);margin-top:1px;}
+.history-item .hi-amount{font-family:"Georgia",serif;font-weight:700;font-size:16px;color:var(--accent);}
+.history-empty{
+  text-align:center;padding:18px 0;color:var(--text-3);
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;
+}
+.history-clear{
+  width:100%;margin-top:10px;padding:9px;border-radius:9px;border:1px solid var(--border);
+  background:none;color:var(--text-3);font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:12px;cursor:pointer;
+}
+
+/* Reference table modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  display:none;align-items:flex-end;justify-content:center;z-index:100;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+}
+.modal-overlay.show{display:flex;}
+.modal-sheet{
+  background:var(--surface);width:100%;max-width:560px;
+  border-radius:20px 20px 0 0;padding:20px 18px calc(20px + var(--safe-bottom));
+  max-height:82vh;overflow-y:auto;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 14px;}
+.modal-title{
+  font-family:"Georgia",serif;font-size:18px;font-weight:700;margin:0 0 4px;color:var(--text-1);
+}
+.modal-sub{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:var(--text-3);margin:0 0 16px;
+}
+table.ref-table{width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12.5px;}
+table.ref-table th{
+  text-align:left;padding:8px 6px;color:var(--text-3);font-weight:600;font-size:11px;
+  text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border);
+}
+table.ref-table td{padding:9px 6px;border-bottom:1px solid var(--border);color:var(--text-2);}
+table.ref-table tr.current-row td{background:rgba(200,168,75,0.12);font-weight:700;color:var(--text-1);}
+.modal-close{
+  position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;
+  background:var(--surface-2);border:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-2);
+}
+
+/* Disclaimer */
+.disclaimer{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:11px;color:var(--text-3);
+  line-height:1.5;text-align:center;padding:8px 12px;
+}
+.disclaimer button{
+  background:none;border:none;color:var(--accent);font-size:11px;text-decoration:underline;
+  cursor:pointer;font-family:inherit;padding:0;
+}
+
+footer.app-footer{
+  text-align:center;padding:18px 16px 30px;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:11px;color:var(--text-3);
+}
+footer.app-footer .made{color:var(--text-2);font-weight:600;}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:calc(24px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--gray-900);color:#fdf8ee;padding:11px 20px;border-radius:30px;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;
+  box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:all .25s ease;z-index:200;
+  display:flex;align-items:center;gap:8px;
+}
+[data-theme="dark"] .toast{background:var(--pj-gold);color:var(--gray-900);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Install banner */
+.install-banner{
+  display:none;
+  margin:0 16px 14px;padding:12px 14px;border-radius:12px;
+  background:var(--surface-2);border:1px solid var(--border);
+  align-items:center;gap:12px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+}
+.install-banner.show{display:flex;}
+.install-banner .ib-text{flex:1;}
+.install-banner .ib-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.install-banner .ib-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.install-banner button{
+  background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;
+  font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;
+}
+.install-banner .ib-close{
+  background:none;color:var(--text-3);padding:6px;font-size:16px;
+}
+
+@media (min-width:480px){
+  .result-amount{font-size:50px;}
+}
+
+/* Hidden konami flash */
+.flash-gold{animation:flashGold 1.2s ease;}
+@keyframes flashGold{
+  0%,100%{box-shadow:var(--shadow);}
+  50%{box-shadow:0 0 0 4px var(--pj-gold);}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-row">
+    <div class="brand">
+      <div class="brand-mark">274</div>
+      <div class="brand-text">
+        <h1>Repara CEE</h1>
+        <p>Reparación civil &middot; Art. 274 CP</p>
+      </div>
+    </div>
+    <button class="icon-btn" id="themeToggle" aria-label="Cambiar tema" title="Modo claro/oscuro">
+      <svg id="themeIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+    </button>
+  </div>
+  <div class="legal-strip">
+    <span class="pill">Ley 29439</span>
+    <span class="pill">Ley 27753</span>
+    <span class="pill">RFN N&deg; 1470-2005-MP-FN</span>
+  </div>
+</header>
+
+<div class="install-banner" id="installBanner">
+  <div class="ib-text">
+    <div class="ib-title">Instala Repara CEE</div>
+    <div class="ib-sub">Úsala sin conexión desde tu pantalla de inicio</div>
+  </div>
+  <button id="installBtn">Instalar</button>
+  <button class="ib-close" id="installClose" aria-label="Cerrar">&times;</button>
+</div>
+
+<main>
+
+  <!-- Año -->
+  <div class="card">
+    <p class="card-label"><span class="num">1</span>Año de referencia</p>
+    <div class="year-row">
+      <div class="year-stepper">
+        <button id="yearMinus" aria-label="Año anterior">&#8722;</button>
+        <div class="year-display">
+          <div class="yr" id="yearValue">2026</div>
+          <div class="uit" id="uitValue">UIT: S/ 5,500.00</div>
+        </div>
+        <button id="yearPlus" aria-label="Año siguiente">+</button>
+      </div>
+    </div>
+    <button class="uit-manual-toggle font-ui" id="manualToggle">Ingresar UIT manualmente</button>
+    <div class="uit-manual-wrap" id="manualWrap">
+      <input type="number" id="manualUit" inputmode="decimal" placeholder="Ej. 5500" step="50">
+    </div>
+  </div>
+
+  <!-- Vehículo -->
+  <div class="card">
+    <p class="card-label"><span class="num">2</span>Tipo de vehículo</p>
+    <div class="segmented" id="vehicleSeg">
+      <button class="active" data-val="menor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="2.5"></circle><circle cx="18.5" cy="17.5" r="2.5"></circle><path d="M15 6a1 1 0 011 1v4.5h-9V8.5a1 1 0 01.8-1l3-1z"></path><path d="M3 17.5h2.5M8 17.5h7M21 17.5h-2.5M16 11.5h3l2 4v2h-2"></path><path d="M5 11.5L7 8h6l2 3.5"></path></svg>
+        Menos de 4 ruedas
+      </button>
+      <button data-val="mayor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="9" width="15" height="7" rx="1"></rect><path d="M16 11h3l3 2.5V16h-6"></path><circle cx="6" cy="17.5" r="1.8"></circle><circle cx="17.5" cy="17.5" r="1.8"></circle></svg>
+        4 ruedas a más
+      </button>
+    </div>
+  </div>
+
+  <!-- Alcohol -->
+  <div class="card">
+    <p class="card-label"><span class="num">3</span>Gramos de alcohol en sangre</p>
+    <div class="alcohol-input-wrap">
+      <input type="number" id="alcoholInput" inputmode="decimal" placeholder="0.00" step="0.01" min="0" max="6">
+      <div class="unit">g/L</div>
+    </div>
+    <div class="quick-vals font-ui">
+      <button data-v="0.59">0.59</button>
+      <button data-v="0.99">0.99</button>
+      <button data-v="1.49">1.49</button>
+      <button data-v="2.49">2.49</button>
+      <button data-v="3.49">3.49</button>
+    </div>
+    <div class="period-tag font-ui" id="periodTag">Ingresa un valor para ver el período de alcoholemia</div>
+  </div>
+
+  <!-- Resultado -->
+  <div class="card result-card" id="resultCard">
+    <p class="card-label"><span class="num">4</span>Reparación civil sugerida</p>
+    <div class="result-amount">
+      <span class="currency">S/</span><span id="resultAmount">0.00</span>
+    </div>
+    <div class="result-meta font-ui">
+      <span id="metaPercent">0% UIT</span>
+      <span id="metaPeriod">&mdash;</span>
+      <span id="metaVehicle">Menos de 4 ruedas</span>
+    </div>
+    <div class="result-formula font-ui" id="resultFormula">Completa los datos para calcular el monto.</div>
+    <div class="actions-row">
+      <button class="btn btn-primary" id="saveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        Guardar
+      </button>
+      <button class="btn btn-ghost" id="shareBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>
+        Compartir
+      </button>
+    </div>
+  </div>
+
+  <!-- Referencia -->
+  <div class="card" style="text-align:center;">
+    <button class="btn-ghost btn" id="openRefTable" style="background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);width:100%;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z" opacity="0"></path><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+      Ver tabla de referencia completa
+    </button>
+  </div>
+
+  <!-- Historial -->
+  <div class="card">
+    <p class="card-label"><span class="num">5</span>Historial de casos</p>
+    <div id="historyList">
+      <div class="history-empty">Aún no guardaste ningún caso</div>
+    </div>
+    <button class="history-clear font-ui" id="clearHistory" style="display:none;">Borrar historial</button>
+  </div>
+
+  <p class="disclaimer">
+    Herramienta de orientación referencial para fiscales y operadores jurídicos, basada en la Resolución de la Fiscalía de la Nación N&deg; 1470-2005-MP-FN. El monto definitivo de la reparación civil es determinado por el órgano jurisdiccional conforme a las circunstancias del caso concreto.
+    <br><button id="aboutBtn">Acerca de Repara CEE</button>
+  </p>
+
+</main>
+
+<footer class="app-footer">
+  <span class="made">Creado por Víctor Siu</span><br>
+  PWA &middot; Funciona sin conexión &middot; v1.0
+</footer>
+
+<!-- Modal tabla referencia -->
+<div class="modal-overlay" id="refModal">
+  <div class="modal-sheet" style="position:relative;">
+    <button class="modal-close" id="closeRefModal" aria-label="Cerrar">&times;</button>
+    <div class="modal-handle"></div>
+    <h3 class="modal-title">Tabla de referencia &mdash; Reparación civil</h3>
+    <p class="modal-sub">Resolución de la Fiscalía de la Nación N&deg; 1470-2005-MP-FN (% de la UIT)</p>
+    <table class="ref-table" id="refTableBody">
+      <thead>
+        <tr><th>Período</th><th>Alcoholemia</th><th>&lt; 4 ruedas</th><th>&ge; 4 ruedas</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="modal-sub" style="margin-top:14px;">Tabla clínica de alcoholemia (Ley 27753)</p>
+    <table class="ref-table">
+      <tbody>
+        <tr><td>1er período</td><td colspan="3">0.1&ndash;0.5 g/L: subclínico, sin relevancia penal/administrativa</td></tr>
+        <tr><td>2do período</td><td colspan="3">0.5&ndash;1.5 g/L: ebriedad &mdash; euforia, disminución de reflejos</td></tr>
+        <tr><td>3er período</td><td colspan="3">1.5&ndash;2.5 g/L: ebriedad absoluta &mdash; confusión, agresividad</td></tr>
+        <tr><td>4to período</td><td colspan="3">2.5&ndash;3.5 g/L: grave alteración de conciencia, estupor</td></tr>
+        <tr><td>5to período</td><td colspan="3">&gt; 3.5 g/L: coma, riesgo de muerte</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal acerca de -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-sheet" style="position:relative;">
+    <button class="modal-close" id="closeAboutModal" aria-label="Cerrar">&times;</button>
+    <div class="modal-handle"></div>
+    <h3 class="modal-title">Acerca de Repara CEE</h3>
+    <p class="modal-sub" style="margin-bottom:14px;">Calculadora de reparación civil por el delito de conducción de vehículo motorizado en estado de ebriedad (Art. 274 del Código Penal peruano).</p>
+    <p style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:var(--text-2);line-height:1.6;">
+      Esta herramienta forma parte de la suite de aplicaciones legales desarrolladas por Víctor Siu para agilizar el trabajo fiscal en Piura, junto con Determinador y Fraccionador.
+      <br><br>
+      Base legal: Ley N&deg; 29439 (modifica art. 274 CP), Ley N&deg; 27753 (tabla de alcoholemia) y Resolución de la Fiscalía de la Nación N&deg; 1470-2005-MP-FN (tabla de reparación civil referencial).
+      <br><br>
+      El cálculo dentro de cada rango de alcoholemia se realiza mediante interpolación lineal proporcional entre los porcentajes mínimo y máximo de la UIT establecidos para dicho rango.
+    </p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DATA ============ */
+const UIT_TABLE = {
+  2026:5500,2025:5350,2024:5150,2023:4950,2022:4600,2021:4400,2020:4300,
+  2019:4200,2018:4150,2017:4050,2016:3950,2015:3850,2014:3800,2013:3700,
+  2012:3650,2011:3600,2010:3600,2009:3550,2008:3500,2007:3450,2006:3400,
+  2005:3300,2004:3200
+};
+const MIN_YEAR = 2004;
+const MAX_YEAR = 2026;
+
+// Rangos de reparación civil (RFN 1470-2005-MP-FN)
+// El 1er periodo (0.25-0.5) usa el mismo tramo que el 2do por instrucción.
+const RANGES = [
+  { period:"1er",     min:0.25, max:0.5,  menor:[5,50],   mayor:[10,100] },
+  { period:"2do",     min:0.5,  max:1.0,  menor:[5,50],   mayor:[10,100] },
+  { period:"2do",     min:1.0,  max:1.5,  menor:[10,50],  mayor:[15,100] },
+  { period:"3er",     min:1.5,  max:2.0,  menor:[15,100], mayor:[20,150] },
+  { period:"3er",     min:2.0,  max:2.5,  menor:[20,100], mayor:[25,150] },
+  { period:"4to",     min:2.5,  max:3.0,  menor:[25,100], mayor:[30,200] },
+  { period:"4to",     min:3.0,  max:3.5,  menor:[30,100], mayor:[35,200] },
+  { period:"5to",     min:3.5,  max:6.0,  menor:[35,100], mayor:[40,200] },
+];
+
+function clinicalPeriod(g){
+  if(g < 0.1) return {label:"Sin alcoholemia relevante", cls:"below"};
+  if(g < 0.5) return {label:"1er período &middot; subclínico (sin relevancia penal)", cls:"below"};
+  if(g < 1.5) return {label:"2do período &middot; ebriedad", cls:""};
+  if(g < 2.5) return {label:"3er período &middot; ebriedad absoluta", cls:""};
+  if(g < 3.5) return {label:"4to período &middot; grave alteración de conciencia", cls:"severe"};
+  return {label:"5to período &middot; coma (riesgo vital)", cls:"severe"};
+}
+
+function findRange(g){
+  for(const r of RANGES){
+    if(g >= r.min && g < r.max) return r;
+  }
+  if(g >= 6.0) return RANGES[RANGES.length-1];
+  return null;
+}
+
+function interpolatePercent(g, range, vehicleKey){
+  const [pMin, pMax] = range[vehicleKey];
+  const span = range.max - range.min;
+  const t = span > 0 ? (g - range.min) / span : 0;
+  const clampedT = Math.min(Math.max(t,0),1);
+  return pMin + (pMax - pMin) * clampedT;
+}
+
+/* ============ STATE ============ */
+let state = {
+  year: MAX_YEAR,
+  manualUit: null,
+  vehicle: "menor", // menor | mayor
+  alcohol: null,
+};
+
+const $ = (id) => document.getElementById(id);
+
+function getUit(){
+  if(state.manualUit && state.manualUit > 0) return state.manualUit;
+  return UIT_TABLE[state.year] || UIT_TABLE[MAX_YEAR];
+}
+
+function fmtMoney(n){
+  return n.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function renderYear(){
+  $("yearValue").textContent = state.year;
+  const uit = getUit();
+  $("uitValue").textContent = "UIT: S/ " + fmtMoney(uit);
+}
+
+function renderPeriodTag(g){
+  const tag = $("periodTag");
+  if(g === null || isNaN(g) || g <= 0){
+    tag.textContent = "Ingresa un valor para ver el período de alcoholemia";
+    tag.className = "period-tag font-ui";
+    return;
+  }
+  const p = clinicalPeriod(g);
+  tag.innerHTML = p.label;
+  tag.className = "period-tag font-ui " + p.cls;
+}
+
+function calculate(){
+  const g = state.alcohol;
+  const uit = getUit();
+  const vehicleKey = state.vehicle;
+  const resultFormula = $("resultFormula");
+  const resultAmount = $("resultAmount");
+  const metaPercent = $("metaPercent");
+  const metaPeriod = $("metaPeriod");
+  const metaVehicle = $("metaVehicle");
+
+  metaVehicle.textContent = vehicleKey === "menor" ? "Menos de 4 ruedas" : "4 ruedas a más";
+
+  if(g === null || isNaN(g) || g < 0.1){
+    resultAmount.textContent = "0.00";
+    metaPercent.textContent = "0% UIT";
+    metaPeriod.textContent = "—";
+    resultFormula.textContent = g !== null && g > 0 && g < 0.1
+      ? "Por debajo del umbral subclínico: no corresponde reparación civil por este artículo."
+      : "Completa los datos para calcular el monto.";
+    return null;
+  }
+
+  const range = findRange(g);
+  if(!range){
+    resultAmount.textContent = "0.00";
+    metaPercent.textContent = "0% UIT";
+    metaPeriod.textContent = "—";
+    resultFormula.textContent = "Valor fuera de rango.";
+    return null;
+  }
+
+  const percent = interpolatePercent(g, range, vehicleKey);
+  const amount = (percent/100) * uit;
+
+  resultAmount.textContent = fmtMoney(amount);
+  metaPercent.textContent = percent.toFixed(1) + "% UIT";
+  metaPeriod.textContent = "Período " + range.period;
+  resultFormula.textContent =
+    `${percent.toFixed(2)}% × UIT (S/ ${fmtMoney(uit)}) = S/ ${fmtMoney(amount)} · interpolado en rango ${range.min}–${range.max} g/L`;
+
+  return {amount, percent, uit, range, vehicleKey, alcohol:g, year:state.year};
+}
+
+/* ============ EVENTS ============ */
+$("yearMinus").addEventListener("click", ()=>{
+  if(state.year > MIN_YEAR){ state.year--; renderYear(); update(); }
+});
+$("yearPlus").addEventListener("click", ()=>{
+  if(state.year < MAX_YEAR){ state.year++; renderYear(); update(); }
+});
+
+$("manualToggle").addEventListener("click", ()=>{
+  $("manualWrap").classList.toggle("show");
+});
+$("manualUit").addEventListener("input", (e)=>{
+  const v = parseFloat(e.target.value);
+  state.manualUit = (!isNaN(v) && v > 0) ? v : null;
+  renderYear();
+  update();
+});
+
+document.querySelectorAll("#vehicleSeg button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("#vehicleSeg button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    state.vehicle = btn.dataset.val;
+    update();
+  });
+});
+
+$("alcoholInput").addEventListener("input", (e)=>{
+  const v = parseFloat(e.target.value);
+  state.alcohol = isNaN(v) ? null : v;
+  update();
+});
+
+document.querySelectorAll(".quick-vals button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const v = parseFloat(btn.dataset.v);
+    $("alcoholInput").value = v;
+    state.alcohol = v;
+    update();
+  });
+});
+
+function update(){
+  renderPeriodTag(state.alcohol);
+  calculate();
+}
+
+/* ============ THEME ============ */
+function initTheme(){
+  const saved = localStorage.getItem("repara-cee-theme");
+  const theme = saved || "light";
+  document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light-default");
+  if(theme === "dark") document.body.setAttribute("data-theme","dark");
+  updateThemeIcon(theme === "dark");
+}
+function updateThemeIcon(isDark){
+  const icon = $("themeIcon");
+  if(isDark){
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+  } else {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>';
+  }
+}
+$("themeToggle").addEventListener("click", ()=>{
+  const isDark = document.body.getAttribute("data-theme") === "dark";
+  if(isDark){
+    document.body.removeAttribute("data-theme");
+    localStorage.setItem("repara-cee-theme","light");
+    updateThemeIcon(false);
+  } else {
+    document.body.setAttribute("data-theme","dark");
+    localStorage.setItem("repara-cee-theme","dark");
+    updateThemeIcon(true);
+  }
+});
+
+/* ============ TOAST ============ */
+function showToast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+/* ============ HISTORY ============ */
+const HISTORY_KEY = "repara-cee-history";
+function getHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }catch(e){ return []; }
+}
+function saveHistoryEntry(entry){
+  const h = getHistory();
+  h.unshift(entry);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,30)));
+  renderHistory();
+}
+function renderHistory(){
+  const h = getHistory();
+  const list = $("historyList");
+  const clearBtn = $("clearHistory");
+  if(h.length === 0){
+    list.innerHTML = '<div class="history-empty">Aún no guardaste ningún caso</div>';
+    clearBtn.style.display = "none";
+    return;
+  }
+  clearBtn.style.display = "block";
+  list.innerHTML = h.map(item=>{
+    const veh = item.vehicleKey === "menor" ? "< 4 ruedas" : "≥ 4 ruedas";
+    return `<div class="history-item">
+      <div class="hi-left">
+        <div class="hi-detail">${item.alcohol} g/L &middot; ${veh} &middot; ${item.year}</div>
+        <div class="hi-date">${item.date}</div>
+      </div>
+      <div class="hi-amount">S/ ${fmtMoney(item.amount)}</div>
+    </div>`;
+  }).join("");
+}
+$("clearHistory").addEventListener("click", ()=>{
+  if(confirm("¿Borrar todo el historial de casos guardados?")){
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+    showToast("Historial borrado");
+  }
+});
+
+$("saveBtn").addEventListener("click", ()=>{
+  const result = calculate();
+  if(!result){
+    showToast("Ingresa los datos para guardar");
+    return;
+  }
+  saveHistoryEntry({
+    amount: result.amount,
+    percent: result.percent,
+    uit: result.uit,
+    vehicleKey: result.vehicleKey,
+    alcohol: result.alcohol,
+    year: result.year,
+    date: new Date().toLocaleDateString('es-PE', {day:'2-digit',month:'short',year:'numeric'})
+  });
+  showToast("Caso guardado en el historial");
+  $("resultCard").classList.add("flash-gold");
+  setTimeout(()=>$("resultCard").classList.remove("flash-gold"),1200);
+});
+
+$("shareBtn").addEventListener("click", async ()=>{
+  const result = calculate();
+  if(!result){
+    showToast("Ingresa los datos para compartir");
+    return;
+  }
+  const vehTxt = result.vehicleKey === "menor" ? "Vehículo menor de 4 ruedas" : "Vehículo de 4 ruedas a más";
+  const text = `Repara CEE — Cálculo de reparación civil (Art. 274 CP)\n\n` +
+    `Año UIT: ${result.year} (S/ ${fmtMoney(result.uit)})\n` +
+    `${vehTxt}\n` +
+    `Alcoholemia: ${result.alcohol} g/L\n` +
+    `Porcentaje aplicado: ${result.percent.toFixed(2)}% UIT\n` +
+    `Monto de reparación civil: S/ ${fmtMoney(result.amount)}\n\n` +
+    `Generado con Repara CEE — herramienta de Víctor Siu`;
+
+  if(navigator.share){
+    try{ await navigator.share({title:"Repara CEE — Resultado", text}); }
+    catch(e){ /* cancelado */ }
+  } else {
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast("Copiado al portapapeles");
+    }catch(e){
+      showToast("No se pudo compartir");
+    }
+  }
+});
+
+/* ============ REF TABLE MODAL ============ */
+function buildRefTable(){
+  const tbody = document.querySelector("#refTableBody tbody");
+  tbody.innerHTML = RANGES.map(r=>{
+    return `<tr>
+      <td>${r.period}</td>
+      <td>${r.min.toFixed(2)}&ndash;${r.max.toFixed(2)} g/L</td>
+      <td>${r.menor[0]}%&ndash;${r.menor[1]}% UIT</td>
+      <td>${r.mayor[0]}%&ndash;${r.mayor[1]}% UIT</td>
+    </tr>`;
+  }).join("");
+}
+$("openRefTable").addEventListener("click", ()=>{
+  buildRefTable();
+  $("refModal").classList.add("show");
+});
+$("closeRefModal").addEventListener("click", ()=> $("refModal").classList.remove("show"));
+$("refModal").addEventListener("click", (e)=>{ if(e.target.id === "refModal") $("refModal").classList.remove("show"); });
+
+$("aboutBtn").addEventListener("click", ()=> $("aboutModal").classList.add("show"));
+$("closeAboutModal").addEventListener("click", ()=> $("aboutModal").classList.remove("show"));
+$("aboutModal").addEventListener("click", (e)=>{ if(e.target.id === "aboutModal") $("aboutModal").classList.remove("show"); });
+
+/* ============ INSTALL PWA ============ */
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!localStorage.getItem("repara-cee-install-dismissed")){
+    $("installBanner").classList.add("show");
+  }
+});
+$("installBtn").addEventListener("click", async ()=>{
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    $("installBanner").classList.remove("show");
+  }
+});
+$("installClose").addEventListener("click", ()=>{
+  $("installBanner").classList.remove("show");
+  localStorage.setItem("repara-cee-install-dismissed","1");
+});
+
+/* ============ EASTER EGG: 5 taps on brand mark ============ */
+let tapCount = 0, tapTimer;
+document.querySelector(".brand-mark").addEventListener("click", ()=>{
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(()=> tapCount = 0, 1500);
+  if(tapCount >= 5){
+    tapCount = 0;
+    showToast("⚖️ Hecho con rigor jurídico y mucho café — V.S.");
+    console.log("%cRepara CEE","color:#8B0000;font-size:20px;font-weight:bold;");
+    console.log("%cCreado por Víctor Siu — Piura, Perú","color:#C8A84B;font-size:12px;");
+    console.log("Dedicado a quienes hacen justicia con datos exactos y plazos cumplidos.");
+  }
+});
+
+/* Konami code easter egg */
+let konamiBuffer = [];
+const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight"];
+window.addEventListener("keydown", (e)=>{
+  konamiBuffer.push(e.key);
+  konamiBuffer = konamiBuffer.slice(-KONAMI.length);
+  if(JSON.stringify(konamiBuffer) === JSON.stringify(KONAMI)){
+    document.body.style.transition = "filter 1s ease";
+    document.body.style.filter = "hue-rotate(180deg)";
+    showToast("🎮 Código activado — vuelve a presionarlo para restaurar");
+    setTimeout(()=>{ document.body.style.filter = ""; }, 4000);
+  }
+});
+
+console.log("%cRepara CEE v1.0","color:#8B0000;font-weight:bold;font-size:14px;");
+console.log("Calculadora de reparación civil — Art. 274 CP — Víctor Siu");
+
+/* ============ SERVICE WORKER ============ */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+
+/* ============ INIT ============ */
+function init(){
+  initTheme();
+  renderYear();
+  renderHistory();
+  update();
+}
+init();
+</script>
+</body>
+</html>
