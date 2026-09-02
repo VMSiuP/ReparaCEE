@@ -289,27 +289,6 @@ main{max-width:560px;margin:0 auto;padding:18px 16px 110px;}
 .btn-primary{background:var(--pj-gold);color:var(--pj-red-dark);}
 .btn-ghost{background:rgba(255,255,255,0.12);color:#fdf8ee;border:1px solid rgba(253,248,238,0.28);}
 
-/* History */
-.history-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:11px 0;border-bottom:1px solid var(--border);
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.history-item:last-child{border-bottom:none;}
-.history-item .hi-left{display:flex;flex-direction:column;}
-.history-item .hi-date{font-size:11px;color:var(--text-3);}
-.history-item .hi-detail{font-size:13px;color:var(--text-2);margin-top:1px;}
-.history-item .hi-amount{font-family:"Georgia",serif;font-weight:700;font-size:16px;color:var(--accent);}
-.history-empty{
-  text-align:center;padding:18px 0;color:var(--text-3);
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;
-}
-.history-clear{
-  width:100%;margin-top:10px;padding:9px;border-radius:9px;border:1px solid var(--border);
-  background:none;color:var(--text-3);font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  font-size:12px;cursor:pointer;
-}
-
 /* Reference table modal */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,0.55);
@@ -400,6 +379,8 @@ footer.app-footer .made{color:var(--text-2);font-weight:600;}
   0%,100%{box-shadow:var(--shadow);}
   50%{box-shadow:0 0 0 4px var(--pj-gold);}
 }
+
+/* ===== Resultado ===== */
 </style>
 </head>
 <body>
@@ -499,13 +480,9 @@ footer.app-footer .made{color:var(--text-2);font-weight:600;}
     </div>
     <div class="result-formula font-ui" id="resultFormula">Completa los datos para calcular el monto.</div>
     <div class="actions-row">
-      <button class="btn btn-primary" id="saveBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-        Guardar
-      </button>
-      <button class="btn btn-ghost" id="shareBtn">
+      <button class="btn btn-ghost" id="shareBtn" style="flex:1;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>
-        Compartir
+        Compartir resultado
       </button>
     </div>
   </div>
@@ -518,15 +495,6 @@ footer.app-footer .made{color:var(--text-2);font-weight:600;}
     </button>
   </div>
 
-  <!-- Historial -->
-  <div class="card">
-    <p class="card-label"><span class="num">5</span>Historial de casos</p>
-    <div id="historyList">
-      <div class="history-empty">Aún no guardaste ningún caso</div>
-    </div>
-    <button class="history-clear font-ui" id="clearHistory" style="display:none;">Borrar historial</button>
-  </div>
-
   <p class="disclaimer">
     Herramienta de orientación referencial para fiscales y operadores jurídicos, basada en la Resolución de la Fiscalía de la Nación N&deg; 1470-2005-MP-FN. El monto definitivo de la reparación civil es determinado por el órgano jurisdiccional conforme a las circunstancias del caso concreto.
     <br><button id="aboutBtn">Acerca de Repara CEE</button>
@@ -536,7 +504,7 @@ footer.app-footer .made{color:var(--text-2);font-weight:600;}
 
 <footer class="app-footer">
   <span class="made">Creado por Víctor Siu</span><br>
-  PWA &middot; Funciona sin conexión &middot; v1.0
+  PWA &middot; Funciona sin conexión &middot; v1.2
 </footer>
 
 <!-- Modal tabla referencia -->
@@ -577,7 +545,7 @@ footer.app-footer .made{color:var(--text-2);font-weight:600;}
       <br><br>
       Base legal: Ley N&deg; 29439 (modifica art. 274 CP), Ley N&deg; 27753 (tabla de alcoholemia) y Resolución de la Fiscalía de la Nación N&deg; 1470-2005-MP-FN (tabla de reparación civil referencial).
       <br><br>
-      El cálculo dentro de cada rango de alcoholemia se realiza mediante interpolación lineal proporcional entre los porcentajes mínimo y máximo de la UIT establecidos para dicho rango.
+      El cálculo dentro de cada rango de alcoholemia se realiza mediante interpolación lineal proporcional. El techo de cada rango equivale al piso del rango siguiente (interpretación sistemática de progresividad estricta), salvo el 5to período que conserva el techo original de la tabla. Esto garantiza que un mayor nivel de alcoholemia nunca produce un monto menor.
     </p>
   </div>
 </div>
@@ -597,14 +565,16 @@ const MAX_YEAR = 2026;
 
 // Rangos de reparación civil (RFN 1470-2005-MP-FN)
 // El 1er periodo (0.25-0.5) usa el mismo tramo que el 2do por instrucción.
+// Tabla con empalme completo (Opción B): piso de cada rango = techo del anterior.
+// 2do período fusionado en un solo rango (0.50–1.50) para evitar tramo plano.
+// 5to período conserva techo original de la RFN por no tener rango siguiente.
 const RANGES = [
-  { period:"1er",     min:0.25, max:0.5,  menor:[5,50],   mayor:[10,100] },
-  { period:"2do",     min:0.5,  max:1.0,  menor:[5,50],   mayor:[10,100] },
-  { period:"2do",     min:1.0,  max:1.5,  menor:[10,50],  mayor:[15,100] },
-  { period:"3er",     min:1.5,  max:2.0,  menor:[15,100], mayor:[20,150] },
-  { period:"3er",     min:2.0,  max:2.5,  menor:[20,100], mayor:[25,150] },
-  { period:"4to",     min:2.5,  max:3.0,  menor:[25,100], mayor:[30,200] },
-  { period:"4to",     min:3.0,  max:3.5,  menor:[30,100], mayor:[35,200] },
+  { period:"1er",     min:0.25, max:0.5,  menor:[5,10],   mayor:[10,15]  },
+  { period:"2do",     min:0.5,  max:1.5,  menor:[10,15],  mayor:[15,20]  },
+  { period:"3er",     min:1.5,  max:2.0,  menor:[15,20],  mayor:[20,25]  },
+  { period:"3er",     min:2.0,  max:2.5,  menor:[20,25],  mayor:[25,30]  },
+  { period:"4to",     min:2.5,  max:3.0,  menor:[25,30],  mayor:[30,35]  },
+  { period:"4to",     min:3.0,  max:3.5,  menor:[30,35],  mayor:[35,40]  },
   { period:"5to",     min:3.5,  max:6.0,  menor:[35,100], mayor:[40,200] },
 ];
 
@@ -708,7 +678,7 @@ function calculate(){
   metaPercent.textContent = percent.toFixed(1) + "% UIT";
   metaPeriod.textContent = "Período " + range.period;
   resultFormula.textContent =
-    `${percent.toFixed(2)}% × UIT (S/ ${fmtMoney(uit)}) = S/ ${fmtMoney(amount)} · interpolado en rango ${range.min}–${range.max} g/L`;
+    `${percent.toFixed(2)}% × UIT (S/ ${fmtMoney(uit)}) = S/ ${fmtMoney(amount)} · rango ${range.min}–${range.max} g/L`;
 
   return {amount, percent, uit, range, vehicleKey, alcohol:g, year:state.year};
 }
@@ -798,66 +768,6 @@ function showToast(msg){
   window._toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
 }
 
-/* ============ HISTORY ============ */
-const HISTORY_KEY = "repara-cee-history";
-function getHistory(){
-  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }catch(e){ return []; }
-}
-function saveHistoryEntry(entry){
-  const h = getHistory();
-  h.unshift(entry);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,30)));
-  renderHistory();
-}
-function renderHistory(){
-  const h = getHistory();
-  const list = $("historyList");
-  const clearBtn = $("clearHistory");
-  if(h.length === 0){
-    list.innerHTML = '<div class="history-empty">Aún no guardaste ningún caso</div>';
-    clearBtn.style.display = "none";
-    return;
-  }
-  clearBtn.style.display = "block";
-  list.innerHTML = h.map(item=>{
-    const veh = item.vehicleKey === "menor" ? "< 4 ruedas" : "≥ 4 ruedas";
-    return `<div class="history-item">
-      <div class="hi-left">
-        <div class="hi-detail">${item.alcohol} g/L &middot; ${veh} &middot; ${item.year}</div>
-        <div class="hi-date">${item.date}</div>
-      </div>
-      <div class="hi-amount">S/ ${fmtMoney(item.amount)}</div>
-    </div>`;
-  }).join("");
-}
-$("clearHistory").addEventListener("click", ()=>{
-  if(confirm("¿Borrar todo el historial de casos guardados?")){
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistory();
-    showToast("Historial borrado");
-  }
-});
-
-$("saveBtn").addEventListener("click", ()=>{
-  const result = calculate();
-  if(!result){
-    showToast("Ingresa los datos para guardar");
-    return;
-  }
-  saveHistoryEntry({
-    amount: result.amount,
-    percent: result.percent,
-    uit: result.uit,
-    vehicleKey: result.vehicleKey,
-    alcohol: result.alcohol,
-    year: result.year,
-    date: new Date().toLocaleDateString('es-PE', {day:'2-digit',month:'short',year:'numeric'})
-  });
-  showToast("Caso guardado en el historial");
-  $("resultCard").classList.add("flash-gold");
-  setTimeout(()=>$("resultCard").classList.remove("flash-gold"),1200);
-});
-
 $("shareBtn").addEventListener("click", async ()=>{
   const result = calculate();
   if(!result){
@@ -865,11 +775,13 @@ $("shareBtn").addEventListener("click", async ()=>{
     return;
   }
   const vehTxt = result.vehicleKey === "menor" ? "Vehículo menor de 4 ruedas" : "Vehículo de 4 ruedas a más";
-  const text = `Repara CEE — Cálculo de reparación civil (Art. 274 CP)\n\n` +
+  const text =
+    `Repara CEE — Cálculo de reparación civil (Art. 274 CP)\n` +
+    `Base: RFN N° 1470-2005-MP-FN | Ley 29439 | Ley 27753\n\n` +
     `Año UIT: ${result.year} (S/ ${fmtMoney(result.uit)})\n` +
     `${vehTxt}\n` +
     `Alcoholemia: ${result.alcohol} g/L\n` +
-    `Porcentaje aplicado: ${result.percent.toFixed(2)}% UIT\n` +
+    `Porcentaje interpolado: ${result.percent.toFixed(2)}% UIT\n` +
     `Monto de reparación civil: S/ ${fmtMoney(result.amount)}\n\n` +
     `Generado con Repara CEE — herramienta de Víctor Siu`;
 
@@ -960,8 +872,10 @@ window.addEventListener("keydown", (e)=>{
   }
 });
 
-console.log("%cRepara CEE v1.0","color:#8B0000;font-weight:bold;font-size:14px;");
+console.log("%cRepara CEE v1.2","color:#8B0000;font-weight:bold;font-size:14px;");
 console.log("Calculadora de reparación civil — Art. 274 CP — Víctor Siu");
+console.log("v1.1: Módulo de atenuantes (Art. 46 y 93 CP) con tope 40%");
+console.log("v1.2: Techo progresivo por rango (mínimo del rango siguiente)");
 
 /* ============ SERVICE WORKER ============ */
 if("serviceWorker" in navigator){
@@ -974,7 +888,6 @@ if("serviceWorker" in navigator){
 function init(){
   initTheme();
   renderYear();
-  renderHistory();
   update();
 }
 init();
